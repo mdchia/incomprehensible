@@ -674,13 +674,18 @@ async function soundOn() {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC || !window.AudioWorkletNode) throw new Error('no worklet');
     audio.ctx = new AC({ latencyHint: 'interactive' });
+  }
+  // Ask to start while the press is still a press. Some browsers will
+  // not let sound begin from anything that happens after a wait.
+  const started = audio.ctx.resume();
+  if (!audio.node) {
     await audio.ctx.audioWorklet.addModule(new URL('./worklet.js', import.meta.url));
     audio.node = new AudioWorkletNode(audio.ctx, 'loudspeaker', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [1] });
     audio.gain = audio.ctx.createGain();
     audio.node.connect(audio.gain).connect(audio.ctx.destination);
   }
   audio.gain.gain.value = loudness(state.volume);
-  await audio.ctx.resume();
+  await started;
   feedAudio(true);
   clearInterval(audio.timer);
   audio.timer = setInterval(feedAudio, 150);
