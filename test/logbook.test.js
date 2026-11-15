@@ -73,3 +73,22 @@ test('watch 1, 1200, 6255.00: nothing heard in the quiet segment', () => {
   assert.equal(onAir(noon, noon + 600, QUIET.lo, QUIET.hi).length, 0);
   assert.equal(heard(6255, noon, 600), '');
 });
+
+test('watch 2, 1230, 6105.00: R1 sent bulletin 026', () => {
+  const text = heard(6105, '2026-11-15T12:30:00Z', 240);
+  assert.ok(text.includes('ZCZC R1 026\nCQ CQ CQ DE R1 R1 R1\nSEA AREA FORECAST ISSUED 151230Z NOV\n'));
+  assert.ok(text.includes('GALE WARNINGS: EMBER BANK, SILL.\n'));
+  assert.ok(text.includes('COMPLEX LOW 975 THE PANS MOVING E AND FILLING.\nHIGH 1025 TALLOW MOVING NE.\n'));
+  assert.ok(text.includes('NEXT ISSUE 1300Z\nNNNN\n'));
+});
+
+test('watch 2, 1240, 6340.00: F1 sent the chart for 1230', () => {
+  assert.equal(heard(6340, '2026-11-15T12:40:00Z', 30), '\nSTART PHASE 120 LINES STOP\n');
+  assert.equal(hash(chart(at('2026-11-15T12:30:00Z')).toString()), 3573350495);
+});
+
+test('watch 2, 1245, 6225.00: P1 sent serial 002 in 34 groups', () => {
+  const text = heard(6225, '2026-11-15T12:45:00Z', 120);
+  assert.ok(text.startsWith('~~~~~~~~~\n~~~~~~~~~\n~~~~~~~~~\n002 002 002\n34 34\n87675 87675\n23193 40324 06110 51104 61373\n'));
+  assert.ok(text.trimEnd().endsWith('23864 26149 41973 85913\n000 000'));
+});

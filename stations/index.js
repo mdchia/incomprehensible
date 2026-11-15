@@ -11,7 +11,8 @@ import question from './question.js';
 import chart from './chart.js';
 import wanderer from './wanderer.js';
 import song from './song.js';
+import crossing from './crossing.js';
 
-export const stations = [standard, forecast, stairs, question, chart, wanderer, song];
+export const stations = [standard, forecast, stairs, question, chart, wanderer, song, crossing];
 
 census.since = stations.map((st) => midnight(st.since));

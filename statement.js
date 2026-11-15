@@ -8,4 +8,5 @@
 
 export const statement = [
   { keeper: 1, since: '2026-11-15', text: 'It is for someone who asked not to be told what it is for.' },
+  { keeper: 2, since: '2026-11-16', text: 'The second keeper left one word at high water and one mark under the floor.' },
 ];
