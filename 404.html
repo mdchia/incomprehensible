@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nothing on this frequency - incomprehensible</title>
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<style>
+  /* This page may be served from any depth, so it carries its own style. */
+  :root { --panel: #c3cbbd; --legend: #1b2320; --paper: #eef3e7; --edge: #6f7d6c; --ink: #17202b; }
+  @media (prefers-color-scheme: dark) {
+    :root { --panel: #150909; --legend: #e8705a; --paper: #1d0c0a; --edge: #5a2019; --ink: #ff7455; }
+  }
+  html { background: var(--panel); color: var(--legend); font-family: 'Courier Prime', 'Courier New', Courier, monospace; }
+  body { margin: 0; padding: 12vh 20px; }
+  main { max-width: 34rem; margin: 0 auto; padding: 34px clamp(18px, 5vw, 44px); background: var(--paper); color: var(--ink); border: 2px solid var(--edge); line-height: 1.55; }
+  h1 { margin: 0 0 1.2em; font-size: 1.15rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  p { margin: 0 0 1em; }
+  p:last-child { margin-bottom: 0; }
+  a { color: inherit; text-underline-offset: 0.18em; }
+  a:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Nothing on this frequency</h1>
+  <p>Nothing is allocated here and nothing was heard.</p>
+  <p><a id="home" href="/">Go back to the receiver</a>, which covers 6000 to 6500 kHz.</p>
+</main>
+<script>
+  // On a project site the receiver lives one directory below the root.
+  (function () {
+    var parts = location.pathname.split('/');
+    if (/\.github\.io$/.test(location.hostname) && parts.length > 2 && parts[1]) document.getElementById('home').href = '/' + parts[1] + '/';
+  })();
+</script>
+</body>
+</html>

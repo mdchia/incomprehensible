@@ -1,0 +1,21 @@
+{
+  "name": "incomprehensible",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "?????",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node bin/check.js",
+    "serve": "node bin/serve.js",
+    "scan": "node bin/scan.js",
+    "rx": "node bin/rx.js",
+    "sked": "node bin/sked.js",
+    "integrate": "node bin/integrate.js",
+    "tape": "node bin/tape.js"
+  }
+}

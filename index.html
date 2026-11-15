@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>incomprehensible</title>
+<meta name="description" content="6000 to 6500 kHz.">
+<meta property="og:title" content="incomprehensible">
+<meta property="og:description" content="6000 to 6500 kHz.">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="site/icon.svg" type="image/svg+xml">
+<link rel="preload" href="site/fonts/routed-gothic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="site/style.css">
+<script src="site/lamp.js"></script>
+</head>
+<body>
+<div class="panel">
+
+  <header class="nameplate">
+    <h1>incomprehensible</h1>
+    <dl class="clock">
+      <div><dt>UTC</dt><dd id="utc">--:--:--</dd></div>
+      <div><dt>Day</dt><dd id="day">-</dd></div>
+    </dl>
+    <nav aria-label="Papers">
+      <a href="./" aria-current="page">Receiver</a>
+      <a href="register.html">Register</a>
+      <a href="logbook.html">Logbook</a>
+      <a href="standard.html">Standard</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="recorder" aria-label="Recorder">
+      <div class="well" id="well">
+        <canvas id="paper" tabindex="0" role="slider" aria-label="Tuning"></canvas>
+        <div id="passband" class="passband" aria-hidden="true"></div>
+        <div id="pen" class="pen" aria-hidden="true"></div>
+        <div id="head" class="head" aria-hidden="true"></div>
+        <p id="exposure" class="exposure" hidden></p>
+      </div>
+      <canvas id="rail" class="rail" aria-hidden="true"></canvas>
+      <canvas id="strip" class="strip" role="img" aria-label="The band, 6000 to 6500 kHz"></canvas>
+      <p class="hint">Drag on the paper to tune. After that the wheel moves it in fine steps, and so do the left and right arrow keys.</p>
+    </section>
+
+    <section class="controls" aria-label="Controls">
+      <div class="readout">
+        <div id="counter" class="counter" role="group" aria-label="Frequency"></div>
+        <span class="unit">kHz</span>
+        <span id="ident" class="ident" aria-live="polite"></span>
+      </div>
+
+      <div class="meter" role="img" aria-label="Signal strength" id="meter">
+        <div class="meter-track"><div id="needle" class="needle"></div></div>
+        <div class="meter-scale" aria-hidden="true"><span>1</span><span>3</span><span>5</span><span>7</span><span>9</span><span>+20</span><span>+40</span></div>
+      </div>
+
+      <div class="switches">
+        <button type="button" id="sound" class="key" aria-pressed="false"><span class="lamp"></span>Sound</button>
+        <label class="slide" for="volume">Volume
+          <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7">
+        </label>
+        <fieldset class="span">
+          <legend>Span, kHz</legend>
+          <label><input type="radio" name="span" value="3000"><span>3</span></label>
+          <label><input type="radio" name="span" value="6000" checked><span>6</span></label>
+          <label><input type="radio" name="span" value="12000"><span>12</span></label>
+          <label><input type="radio" name="span" value="24000"><span>24</span></label>
+          <label><input type="radio" name="span" value="48000"><span>48</span></label>
+        </fieldset>
+        <button type="button" id="integrate" class="key" aria-pressed="false" title="Stop the paper and add up frames instead"><span class="lamp"></span>Integrate</button>
+        <button type="button" id="lamp" class="key" aria-pressed="true" title="White light, or red for night"><span class="lamp"></span>Lamp</button>
+      </div>
+    </section>
+
+    <section class="copy" aria-label="Copy">
+      <h2>Copy</h2>
+      <pre id="copy" tabindex="0"></pre>
+    </section>
+
+    <section class="sked" aria-label="On the air">
+      <h2>On the air</h2>
+      <table>
+        <thead><tr><th scope="col">UTC</th><th scope="col">kHz</th><th scope="col">ID</th><th scope="col"></th></tr></thead>
+        <tbody id="sked"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <noscript><p class="notice">The receiver needs JavaScript. The register, the logbook and the Standard are in the repository as plain text.</p></noscript>
+</div>
+<script type="module" src="site/receiver.js"></script>
+</body>
+</html>
