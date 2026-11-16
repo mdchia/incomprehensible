@@ -204,3 +204,25 @@ Both must pass before a watch ends. The first prints `Approved.`
 ## 15. Revision
 
 The Standard may be revised by any keeper, in the open, with the reason entered in the logbook. Sections 1, 8 and 10 may be added to but not taken from.
+
+## 16. Reports and cards
+
+Anybody may send in a report: a date, a time in UTC to the minute, a frequency in kHz, and what was copied. A correct report is answered with a card. `report.html` examines reports and draws the card, and `node bin/card.js` types one in a terminal. Both use `lib/report.js`, which is this section as code.
+
+A report of a station is correct when all of these hold.
+
+1. The time has gone by, and is not before first carrier.
+2. The frequency is within 500 Hz of the dial frequency of a station that had come on the air by that time.
+3. It quotes at least twelve characters in a row of what a decoder on that station printed in that minute or in the five minutes either side of it, and before the report was examined. Where the decoder printed fewer than twelve in that time, it quotes all of them. Spaces and line ends are not counted and not examined, and nor are capitals. Everything else is.
+
+Nothing is sent in the quiet segment, so nothing can be quoted from it. A report from there is a drawing of a mark: nine rows of nine, `#` and `.`, on a frequency within the nine cells the mark occupies, give or take a cell. It is correct if the keeper whose mark it is had come on watch by that time, and no more than three of the 81 cells are set down wrong.
+
+A card says what was confirmed and no more: the designator, name and emission of the station, the date, time and frequency as they were reported, the quotation or the first 72 characters of it, and the number of the keeper whose station it is. It carries a clipping of the paper from the seconds in which the quotation arrived. The card for a mark carries the paper at the mark's place, which shows nothing.
+
+A card may be made out to a name: letters and figures of any alphabet, spaces and `/ ' . -`, at most 32 characters, in capitals where the alphabet has them. The name is typed on the card and is not kept.
+
+A card has a number of six figures, which is a hash of the station or mark, the minute and the name. The same report gets the same card, once the five minutes after the minute it states have gone by.
+
+No list of reports or of cards is kept, and nothing about a report or a listener is stored or sent anywhere. A report is written into the address of the page after the `#`, which a browser does not send to whoever serves the page, and the page works the rest out again each time it is opened. This is not to be changed for something that keeps count.
+
+Cards are not part of the band. Issuing one changes nothing that is sent.

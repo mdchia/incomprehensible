@@ -9,7 +9,7 @@ import { stations, dial, QUIET } from '../lib/band.js';
 import { keepers } from '../keepers/index.js';
 import { traffic } from '../traffic/index.js';
 import { statement } from '../statement.js';
-import { register, roll, purpose, messages, logbook, emissions } from './approval.js';
+import { register, roll, purpose, messages, logbook, reports, emissions } from './approval.js';
 import { kHz } from './args.js';
 
 const out = [];
@@ -29,6 +29,7 @@ report(`roll (${keepers.length} keeper${keepers.length === 1 ? '' : 's'})`, awai
 report(`statement (${statement.length} sentence${statement.length === 1 ? '' : 's'})`, purpose());
 report(`traffic (${traffic.length} item${traffic.length === 1 ? '' : 's'})`, messages());
 report('logbook', logbook());
+report('reports and cards', reports());
 
 out.push('');
 out.push(failed ? `${failed} problem${failed === 1 ? '' : 's'}. Not approved.` : 'Approved.');

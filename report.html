@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report - incomprehensible</title>
+<meta name="description" content="6000 to 6500 kHz. Say when, where and what you copied.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="site/icon.svg" type="image/svg+xml">
+<link rel="preload" href="site/fonts/courier-prime-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="site/style.css">
+<script src="site/lamp.js"></script>
+</head>
+<body class="desk">
+<div class="panel">
+
+  <header class="nameplate">
+    <h1><a href="./">incomprehensible</a></h1>
+    <nav aria-label="Papers">
+      <a href="./">Receiver</a>
+      <a href="register.html">Register</a>
+      <a href="logbook.html">Logbook</a>
+      <a href="standard.html">Standard</a>
+      <a href="report.html" aria-current="page">Report</a>
+    </nav>
+  </header>
+
+  <main class="papers">
+    <section id="answer" class="answer" aria-live="polite" hidden></section>
+
+    <article class="sheet" id="sheet">
+      <h1>Report</h1>
+      <p>Say when, where and what you copied. A correct report is answered with a card.</p>
+      <p id="begun" hidden>This one was begun at the receiver. Look it over, put a name to it if you like, and send it in.</p>
+
+      <form id="report" class="form">
+        <label for="date">Date</label>
+        <input id="date" class="short" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="2026-11-15" pattern="\d{4}-\d{2}-\d{2}" title="Year, month and day, like 2026-11-15" required>
+
+        <label for="utc">UTC</label>
+        <input id="utc" class="short" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="1200" pattern="\d{2}:?\d{2}" title="Four figures, like 1200" required>
+        <p class="aside" id="clock"></p>
+
+        <label for="khz">kHz</label>
+        <input id="khz" class="short" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="6105.00" pattern="\d{4}([.,]\d{0,2})?" title="A frequency in kilohertz, like 6105.00" required>
+
+        <label for="copied">Copied</label>
+        <textarea id="copied" rows="5" autocomplete="off" autocapitalize="characters" spellcheck="false"></textarea>
+
+        <label for="to">Card to</label>
+        <input id="to" type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <p class="aside">Whatever you sign yourself. It is typed on the card and sent nowhere. It may be left empty.</p>
+
+        <button type="submit" class="key">Send in the report</button>
+      </form>
+
+      <h2>What makes a report correct</h2>
+      <ul>
+        <li>The time is UTC, to the minute, and has gone by.</li>
+        <li>The frequency is a station's dial frequency, give or take half a kilohertz.</li>
+        <li>It quotes twelve characters in a row as they were sent, from that minute or the five either side of it. Where the station sent fewer than twelve, all of them. Spacing and capitals are not examined.</li>
+      </ul>
+      <p>Nothing is kept, and nothing leaves this page. A report is written after the # in the address, which a browser does not send to anybody, and the page works out the answer for itself. Once a report is confirmed that address is the card, and the same report gets the same card again. The rules in full are <a href="standard.html#16-reports-and-cards">section 16 of the Standard</a>.</p>
+    </article>
+  </main>
+
+  <noscript><p class="notice">Reports are examined by JavaScript. Without it, <code>node bin/card.js</code> in the repository does the same work.</p></noscript>
+</div>
+<script type="module" src="site/report.js"></script>
+</body>
+</html>

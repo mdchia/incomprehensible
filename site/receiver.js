@@ -5,9 +5,11 @@
 // station; it asks lib/band.js what is on the air and renders that.
 
 import { BAND, QUIET, PASSBAND, stations, dial as dialOf, onAir, copy as decode, tuned as tunedAt, sked, live } from '../lib/band.js';
-import { rowOf } from '../lib/paper.js';
+import { rowOf, ink } from '../lib/paper.js';
+import { css, mix } from './ink.js';
 import { CELL } from '../lib/floor.js';
-import { FRAME, dayOf, pad, utc, hhmm, now, setNow, parse } from '../lib/clock.js';
+import { FRAME, dayOf, pad, utc, hhmm, iso, now, setNow, parse } from '../lib/clock.js';
+import { address } from '../lib/report.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -107,45 +109,18 @@ const lutPaper = new Uint32Array(256);
 const lutRule = new Uint32Array(256);
 const tone = { legend: '#000', soft: '#444', pen: '#c00', face: '#fff', edge: '#888', paper: '#fff' };
 
-function css(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
-
-function rgb(hex) {
-  const n = parseInt(hex.replace('#', ''), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
 // Read the colours off the stylesheet, so the lamp changes the paper too.
 function inks() {
-  const p = rgb(css('--paper'));
-  const g = rgb(css('--grat'));
-  const k = rgb(css('--ink'));
-  const pack = (c) => (255 << 24) | (c[2] << 16) | (c[1] << 8) | c[0];
-  for (let i = 0; i < 256; i++) {
-    const d = i / 255;
-    lutPaper[i] = pack(p.map((v, j) => Math.round(v + (k[j] - v) * d)));
-    lutRule[i] = pack(g.map((v, j) => Math.round(v + (k[j] - v) * d)));
-  }
+  mix(lutPaper, lutRule);
   for (const name of Object.keys(tone)) tone[name] = css('--' + name);
 }
 
-// Power -> an index into the ink tables. Noise prints as a light grain,
-// a strong signal as solid ink.
-const LO = 2.6; // dB above the mean floor at which ink starts
-const HI = 17; // dB at which it is solid
-const DB = 10 / Math.LN10;
-
-function shade(p) {
-  if (p <= 1.8) return 0;
-  const d = (Math.log(p) * DB - LO) / (HI - LO);
-  return d <= 0 ? 0 : d >= 1 ? 255 : (d ** 1.35 * 255) | 0;
-}
-
+// One row of power onto the paper. Noise prints as a light grain, a
+// strong signal as solid ink.
 function tint(px, at, power, t) {
   const ruled = Math.round(t / ROW) % 100 === 0; // a line across every five seconds
   for (let x = 0; x < W; x++) {
-    const i = shade(power[x]);
+    const i = ink(power[x]);
     px[at + x] = ruled || rules[x] ? lutRule[i] : lutPaper[i];
   }
 }
@@ -598,6 +573,22 @@ function pollCopy() {
   print(s);
 }
 
+// ---- reports ---------------------------------------------------------------
+
+// The address of the report desk, with a report of this frequency begun:
+// where the dial is, the last of what was copied here, and the minute it
+// arrived. Sending it in is left to the listener.
+function draft() {
+  const t = now();
+  const events = decode(state.dial, t - 240, t);
+  let said = '';
+  for (const e of events) said += e.s;
+  said = said.replace(/\s+/g, ' ').trim();
+  if (said.length > 48) said = said.slice(-48).replace(/^\S*\s/, '');
+  const at = said ? events[events.length - 1].t : t;
+  return address({ khz: (state.dial / 1000).toFixed(2), date: iso(at).slice(0, 10), utc: hhmm(at), copied: said }, true);
+}
+
 // ---- what is on --------------------------------------------------------------
 
 function until(secs) {
@@ -837,6 +828,11 @@ document.addEventListener('keydown', (e) => {
   else return;
   e.preventDefault();
 });
+
+// The link to the report desk is aimed when it is about to be used.
+for (const type of ['pointerenter', 'pointerdown', 'touchstart', 'focus', 'keydown']) {
+  $('report').addEventListener(type, () => ($('report').href = draft()), { passive: true });
+}
 
 window.addEventListener('hashchange', () => {
   const h = fromHash();

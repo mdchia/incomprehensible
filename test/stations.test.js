@@ -10,7 +10,7 @@ import { traffic } from '../traffic/index.js';
 import standard, { frame } from '../stations/standard.js';
 import { words, wordAt } from '../stations/question.js';
 import { message, encipher, decipher, board, unboard, chain, sendable } from '../stations/stairs.js';
-import { bulletin, serial } from '../stations/forecast.js';
+import { bulletin, serial, situation } from '../stations/forecast.js';
 import { step, length } from '../stations/song.js';
 import wanderer, { offset } from '../stations/wanderer.js';
 import fax from '../stations/chart.js';
@@ -134,6 +134,30 @@ test('R1: the bulletin is numbered from first carrier and can all be teleprinted
     assert.ok(lines.every((l) => l.length <= 68), 'fits across a page');
     assert.equal(lines.at(-1), 'NNNN');
   }
+});
+
+test('R1: from 17 November it does not read the same line out twice', () => {
+  // On the 16th two lows lay off the Pans with the same pressure, going the
+  // same way, and the bulletin named them one after the other. That stays.
+  assert.deepEqual(situation(at('2026-11-16T09:30:00Z')), [
+    'LOW 991 THE PANS MOVING E AND FILLING.',
+    'LOW 1002 LATHE MOVING E AND DEEPENING.',
+    'LOW 991 THE PANS MOVING E AND FILLING.',
+  ]);
+  assert.deepEqual(bulletin(at('2026-11-16T09:30:00Z')).slice(6, 11), ['GENERAL SITUATION', ...situation(at('2026-11-16T09:30:00Z')), '']);
+
+  // From the 17th the second centre makes the first complex, and the line
+  // it would have had goes to the next system.
+  for (let t = at('2026-11-17T00:00:00Z'); t < at('2027-02-01T00:00:00Z'); t += 1800) {
+    const said = situation(t);
+    assert.ok(said.length <= 3);
+    assert.equal(new Set(said.map((line) => line.replace(/^COMPLEX /, ''))).size, said.length, `${new Date(t * 1000).toISOString()}: ${said.join(' ')}`);
+  }
+  assert.deepEqual(situation(at('2026-12-06T03:00:00Z')), [
+    'LOW 1002 SILL MOVING E AND FILLING.',
+    'HIGH 1013 SILL MOVING E.',
+    'COMPLEX LOW 1003 QUIRE MOVING E AND DEEPENING.',
+  ]);
 });
 
 test('R1: the tides it gives are the tides', () => {

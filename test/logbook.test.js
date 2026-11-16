@@ -15,6 +15,8 @@ import { chart } from '../lib/world/chart.js';
 import { turns } from '../lib/world/tide.js';
 import { frame } from '../stations/standard.js';
 import wanderer, { offset } from '../stations/wanderer.js';
+import { decipher } from '../stations/stairs.js';
+import { examine } from '../lib/report.js';
 import { at, heard } from './listen.js';
 
 test('watch 1, 1200, 6000.00: T1 gave the hour on the higher tone, and the right frame', () => {
@@ -91,4 +93,80 @@ test('watch 2, 1245, 6225.00: P1 sent serial 002 in 34 groups', () => {
   const text = heard(6225, '2026-11-15T12:45:00Z', 120);
   assert.ok(text.startsWith('~~~~~~~~~\n~~~~~~~~~\n~~~~~~~~~\n002 002 002\n34 34\n87675 87675\n23193 40324 06110 51104 61373\n'));
   assert.ok(text.trimEnd().endsWith('23864 26149 41973 85913\n000 000'));
+});
+
+test('watch 3, 0855, 6470.00: S1 was two notes long', () => {
+  assert.equal(heard(6470, '2026-11-16T08:55:00Z', 120), 'D E \n');
+});
+
+test('watch 3, 0900, 6000.00: T1 counted eight stations and two keepers', () => {
+  const nine = at('2026-11-16T09:00:00Z');
+  assert.equal(heard(6000, nine, 60), '\nH 00000000 001001000 110010000 000000100 011001000 000000100 ');
+  const bits = frame(nine);
+  const field = (from, width) => bits.slice(from, from + width).reduce((n, b) => n * 2 + b, 0);
+  assert.equal(field(44, 5), 8);
+  assert.equal(field(50, 8), 2);
+});
+
+test('watch 3, 0930, 6105.00: R1 sent bulletin 068, and named one low twice', () => {
+  const text = heard(6105, '2026-11-16T09:30:00Z', 240);
+  assert.ok(text.includes('ZCZC R1 068\nCQ CQ CQ DE R1 R1 R1\nSEA AREA FORECAST ISSUED 160930Z NOV\n\nNO GALE WARNINGS.\n'));
+  assert.ok(
+    text.includes(
+      'GENERAL SITUATION\nLOW 991 THE PANS MOVING E AND FILLING.\nLOW 1002 LATHE MOVING E AND DEEPENING.\nLOW 991 THE PANS MOVING E AND FILLING.\n\nNORTH FETCH.',
+    ),
+  );
+  assert.ok(text.includes('TIDES SILL HEAD 16 NOV\nLW 0427 1.7 / HW 1019 3.8 / LW 1627 1.4 / HW 2301 4.3\nMOON FIRST QUARTER AGE 06\n'));
+  // The chart sent twenty minutes before shows why: two centres, side by side.
+  assert.equal(hash(chart(at('2026-11-16T09:00:00Z')).toString()), 598380068);
+});
+
+test('watch 3, 0945, 6225.00: P1 sent serial 004 in 28 groups, and it was for the next watch', () => {
+  const text = heard(6225, '2026-11-16T09:45:00Z', 120);
+  assert.ok(text.startsWith('~~~~~~~~~\n~~~~~~~~~\n~~~~~~~~~\n004 004 004\n28 28\n16690 16690\n42360 51210 28708 34212 06213\n'));
+  assert.ok(text.trimEnd().endsWith('44191 03213 76566\n000 000'));
+  // Read by hand, as the top of stations/stairs.js says how.
+  const groups = text.trim().split('\n').slice(6, -1).join('').replace(/ /g, '');
+  assert.equal(groups.length, 28 * 5);
+  assert.equal(decipher(groups, '16690'), 'TO THE NEXT WATCH STOP F2 SPEAKS ONLY AT HIGH WATER STOP READ THE PAPER BEFORE THE COPY STOP 73');
+});
+
+// Reports sent in to the desk during watch 3, examined long afterwards.
+const SINCE = at('2027-06-01T00:00:00Z');
+
+test('watch 3, 0930, 6251.25: a drawing of what stood beside my mark was confirmed as keeper 2\'s', () => {
+  const drawing = '#.......# .#.....#. ..#...#.. ...#.#... ....#.... ...###... ..#####.. .#######. #########';
+  const finding = examine({ khz: '6251.25', date: '2026-11-16', utc: '0930', copied: drawing, to: 'KEEPER 1' }, SINCE);
+  assert.equal(finding.ok, true);
+  assert.equal(finding.mark.n, 2);
+  assert.equal(finding.cells, 81);
+  assert.equal(finding.number, '228532');
+  // The day before, there was nothing there to draw.
+  assert.equal(examine({ khz: '6251.25', date: '2026-11-15', utc: '1248', copied: drawing }, SINCE).ok, false);
+});
+
+test('watch 3, 1019, 6160.00: F2 spoke for the first time, and the first card went to it', () => {
+  const [high] = turns(at('2026-11-16T10:00:00Z'), at('2026-11-16T10:30:00Z'));
+  assert.ok(high.high);
+  assert.equal(Math.floor(high.t), at('2026-11-16T10:19:09Z'));
+  // Nothing before high water, and then one word.
+  assert.equal(heard(6160, '2026-11-16T10:00:00Z', 19 * 60), '');
+  assert.equal(heard(6160, '2026-11-16T10:19:00Z', 30), '\nOVER\n');
+  // It lay on the paper from 6160.0 to 6164.8 kHz, for four seconds.
+  const word = onAir(at('2026-11-16T10:19:00Z'), at('2026-11-16T10:19:30Z'), 6_150_000, 6_175_000);
+  assert.ok(word.length > 0);
+  assert.ok(word.every((s) => s.s === 'F2' && s.t0 >= high.t - 1e-6 && s.t1 <= high.t + 4 + 1e-6));
+  assert.ok(Math.min(...word.map((s) => s.f - (s.w || 0) / 2)) >= 6_160_000 && Math.max(...word.map((s) => s.f + (s.w || 0) / 2)) <= 6_164_800);
+
+  const finding = examine({ khz: '6160.00', date: '2026-11-16', utc: '1019', copied: 'OVER', to: 'KEEPER 1' }, SINCE);
+  assert.equal(finding.ok, true);
+  assert.equal(finding.station.id, 'F2');
+  assert.equal(finding.quoted, 'OVER');
+  assert.equal(finding.number, '456656');
+});
+
+test('watch 3, 1019, 6425.97: C1 pipped three times at the same high water', () => {
+  const [high] = turns(at('2026-11-16T10:00:00Z'), at('2026-11-16T10:30:00Z'));
+  assert.equal(((wanderer.kHz * 1000 + offset(high.t)) / 1000).toFixed(2), '6425.97');
+  assert.equal(heard(6400, '2026-11-16T10:19:00Z', 60), '...\n');
 });

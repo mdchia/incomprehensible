@@ -16,6 +16,7 @@
     "rx": "node bin/rx.js",
     "sked": "node bin/sked.js",
     "integrate": "node bin/integrate.js",
-    "tape": "node bin/tape.js"
+    "tape": "node bin/tape.js",
+    "card": "node bin/card.js"
   }
 }

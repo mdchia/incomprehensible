@@ -11,9 +11,10 @@ import { stations, BAND, QUIET, dial, onAir } from '../lib/band.js';
 import { keepers } from '../keepers/index.js';
 import { traffic } from '../traffic/index.js';
 import { statement } from '../statement.js';
-import { SIZE, PLACES } from '../lib/floor.js';
-import { EPOCH, DAY, HOUR, iso, midnight } from '../lib/clock.js';
+import { SIZE, PLACES, place } from '../lib/floor.js';
+import { EPOCH, DAY, HOUR, MINUTE, iso, hhmm, midnight } from '../lib/clock.js';
 import { sendable, encipher, decipher } from '../stations/stairs.js';
+import { examine } from '../lib/report.js';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -255,8 +256,40 @@ export function logbook() {
   return problems;
 }
 
+// Section 16, on the band as it stands: a report that quotes what a
+// station sent is confirmed as that station's, and a drawing of a
+// keeper's mark is confirmed where the mark lies. A station that prints
+// nothing cannot be quoted, and is passed over.
+export function reports() {
+  const problems = [];
+  const kHz = (hz) => (hz / 1000).toFixed(2);
+  const when = (t) => ({ date: iso(t).slice(0, 10), utc: hhmm(t) });
+
+  for (const st of stations) {
+    if (!isDate(st.since) || typeof st.copy !== 'function') continue; // the register has said so already
+    // The first thing a decoder prints on its second day, whenever that is.
+    let t0 = midnight(st.since) + DAY;
+    let events = [];
+    for (let tries = 0; tries < 2 * 144 && !events.length; tries++, t0 += 10 * MINUTE) events = st.copy(t0, t0 + 10 * MINUTE);
+    if (!events.length) continue;
+    const t = events[0].t;
+    const copied = st.copy(t - 1, t + 4 * MINUTE).map((e) => e.s).join('');
+    const finding = examine({ khz: kHz(dial(st)), ...when(t), copied }, Infinity);
+    if (!finding.ok) problems.push(`${st.id}: a report of what it sent at ${iso(t)} is not confirmed. ${finding.why}`);
+    else if (finding.station !== st) problems.push(`${st.id}: a report of what it sent at ${iso(t)} is taken for ${finding.station.id}`);
+  }
+
+  for (const k of keepers) {
+    if (!isDate(k.since) || !Array.isArray(k.mark)) continue; // the roll has said so already
+    const finding = examine({ khz: kHz(place(k.n).f), ...when(midnight(k.since) + 12 * HOUR), copied: k.mark.join('\n') }, Infinity);
+    if (!finding.ok) problems.push(`keeper ${k.n}: a drawing of their mark is not confirmed where it lies. ${finding.why}`);
+    else if (finding.mark !== k) problems.push(`keeper ${k.n}: a drawing of their mark is taken for keeper ${finding.mark.n}'s`);
+  }
+  return problems;
+}
+
 export async function all() {
-  const problems = [...(await register()), ...(await roll()), ...purpose(), ...messages(), ...logbook()];
+  const problems = [...(await register()), ...(await roll()), ...purpose(), ...messages(), ...logbook(), ...reports()];
   for (const st of stations) problems.push(...emissions(st));
   return problems;
 }

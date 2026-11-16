@@ -5,7 +5,7 @@
 
 import { cycle } from '../lib/cycle.js';
 import { teleprint, idle } from '../lib/modes/rtty.js';
-import { utc, pad, dtg, hhmm, HOUR, DAY, EPOCH } from '../lib/clock.js';
+import { utc, pad, dtg, hhmm, midnight, HOUR, DAY, EPOCH } from '../lib/clock.js';
 import { AREAS, COAST, PORT } from '../lib/world/sea.js';
 import { field, wind, sky, synopsis, compass, pressure, tendency, tendencyWord } from '../lib/world/weather.js';
 import { turns } from '../lib/world/tide.js';
@@ -35,6 +35,29 @@ function windPhrase(a, t) {
 // Bulletins are numbered from first carrier. The one at 0000 that day was 001.
 export const serial = (t) => Math.floor((t - EPOCH) / 1800) + 1;
 
+// The general situation at t, as lines: the three systems that matter most.
+//
+// Two centres of a kind can lie in one area with the same pressure, going
+// the same way. Until this date they were read out one after the other,
+// and at 0930 on 16 November that came out as the same line twice. From
+// this date the second centre makes the first COMPLEX and is not read out
+// again. Bulletins before it are left as they were sent. See order 5.
+const ONCE = midnight('2026-11-17');
+
+export function situation(t) {
+  const said = [];
+  for (const s of synopsis(t)) {
+    let line = `${s.low ? 'LOW' : 'HIGH'} ${s.pressure} ${s.area}`;
+    line += s.moving ? ` MOVING ${s.moving}` : ' SLOW MOVING';
+    if (s.trend) line += ` AND ${s.trend}`;
+    const twin = t >= ONCE && said.find((o) => o.line === line);
+    if (twin) twin.complex = true;
+    else said.push({ line, complex: Boolean(s.complex) });
+    if (t < ONCE && said.length === 3) break;
+  }
+  return said.slice(0, 3).map((o) => `${o.complex ? 'COMPLEX ' : ''}${o.line}.`);
+}
+
 // The whole bulletin for issue time t, as lines.
 export function bulletin(t) {
   const lines = [];
@@ -48,14 +71,9 @@ export function bulletin(t) {
   lines.push('');
 
   lines.push('GENERAL SITUATION');
-  const sys = synopsis(t).slice(0, 3);
+  const sys = situation(t);
   if (!sys.length) lines.push('SLACK PRESSURE ALL AREAS.');
-  for (const s of sys) {
-    let line = `${s.complex ? 'COMPLEX ' : ''}${s.low ? 'LOW' : 'HIGH'} ${s.pressure} ${s.area}`;
-    line += s.moving ? ` MOVING ${s.moving}` : ' SLOW MOVING';
-    if (s.trend) line += ` AND ${s.trend}`;
-    lines.push(line + '.');
-  }
+  lines.push(...sys);
   lines.push('');
 
   for (const a of AREAS) {

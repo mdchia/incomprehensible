@@ -103,7 +103,7 @@ body {
 }
 
 .panel {
-  max-width: 1180px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 22px 24px 56px;
 }
@@ -709,6 +709,245 @@ main.papers {
   border-left: 3px solid var(--edge);
 }
 
+/* ---- the report desk --------------------------------------------------- */
+
+.copy-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+.copy-head a {
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+}
+
+.answer {
+  margin: 8px 0 30px;
+}
+
+/* The form is typed on the sheet: a word, and a line to write on. */
+.form {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: baseline;
+  gap: 16px 22px;
+  max-width: 36rem;
+  margin: 1.8em 0 0;
+}
+.form label {
+  font-weight: 700;
+}
+.form input,
+.form textarea {
+  width: 100%;
+  margin: 0;
+  padding: 3px 2px;
+  font: inherit;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  border-radius: 0;
+}
+.form textarea {
+  display: block;
+  padding: 8px 10px;
+  line-height: 1.38;
+  border: 1px solid var(--ink);
+  resize: vertical;
+}
+.form .short {
+  width: 13ch;
+}
+.form ::placeholder {
+  color: var(--soft);
+  opacity: 0.75;
+}
+.form .aside,
+.form .key {
+  grid-column: 2;
+}
+.form .aside {
+  margin: -10px 0 0;
+  font-size: 0.9rem;
+  color: var(--soft);
+}
+.form .aside:empty {
+  display: none;
+}
+.form .key {
+  justify-self: start;
+  margin-top: 4px;
+  font-family: var(--engraved);
+}
+
+/* What comes back when a report is not right. */
+.slip {
+  max-width: 46rem;
+  padding: 18px clamp(18px, 5vw, 54px);
+  font-family: var(--typed);
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--edge);
+}
+.slip p {
+  margin: 0;
+  max-width: 68ch;
+}
+.slip strong {
+  color: var(--pen);
+}
+
+/* And what comes back when it is. The card is printed in the panel's
+   lettering; what is particular to one report is typed on it. */
+.card {
+  max-width: 46rem;
+  color: var(--legend);
+  background: var(--face);
+  border: 1.5px solid var(--legend);
+  border-radius: 10px;
+  box-shadow: 5px 6px 0 var(--panel-deep);
+}
+.card-top,
+.card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 24px;
+  padding: 13px 24px 10px;
+  letter-spacing: 0.04em;
+}
+.card-top {
+  border-bottom: 1.5px solid var(--legend);
+}
+.card-top span:first-child {
+  font-family: var(--engraved-wide);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.card-foot {
+  padding: 10px 24px 12px;
+  border-top: 1.5px solid var(--legend);
+}
+.card-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+  align-items: start;
+  gap: 22px 28px;
+  padding: 22px 24px 26px;
+}
+.card p {
+  margin: 0;
+}
+/* The designator is typed, as it is beside the counter, because the
+   engraver's figure one is a plain stroke and R1 would read as RI. */
+.card-id {
+  font-family: var(--typed);
+  font-weight: 700;
+  font-size: clamp(4rem, 13vw, 6rem);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.card-id.long {
+  font-size: clamp(2.5rem, 8vw, 3.6rem);
+  line-height: 1;
+}
+.card-station {
+  margin-top: 14px;
+  font-size: 1.14rem;
+  letter-spacing: 0.03em;
+}
+.card .card-verdict {
+  margin-top: 6px;
+  letter-spacing: 0.03em;
+}
+.card-clipping {
+  margin: 0;
+}
+.card-clipping canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  background: var(--paper);
+  border: 1.5px solid var(--edge);
+}
+.card-clipping figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 10px;
+  margin-top: 5px;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  color: var(--soft);
+}
+.card-lines {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 12px 22px;
+  margin: 0;
+}
+.field {
+  grid-column: span 12;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--legend);
+}
+.field-date {
+  grid-column: span 6;
+}
+.field-utc,
+.field-khz {
+  grid-column: span 3;
+}
+.field dt {
+  flex: none;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--soft);
+}
+.field dd {
+  min-width: 0;
+  margin: 0;
+  font-family: var(--typed);
+  font-size: 1.04rem;
+  line-height: 1.35;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.card-foot span {
+  font-family: var(--typed);
+  letter-spacing: 0;
+  color: var(--ink);
+}
+.card-foot .card-number {
+  font-weight: 700;
+  font-size: 1.12rem;
+  letter-spacing: 0.08em;
+  color: var(--pen);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 22px;
+  max-width: 46rem;
+  margin: 24px 0 0;
+}
+.said {
+  font-size: 0.92rem;
+  color: var(--soft);
+}
+
 /* ---- small screens ---------------------------------------------------- */
 
 @media (max-width: 820px) {
@@ -747,11 +986,74 @@ main.papers {
   }
 }
 
+@media (max-width: 640px) {
+  .form {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .form label {
+    margin-top: 12px;
+  }
+  .form .aside,
+  .form .key {
+    grid-column: 1;
+  }
+  .form .aside {
+    margin-top: 4px;
+  }
+  .form .key {
+    margin-top: 16px;
+  }
+  .card-top,
+  .card-foot {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .card-body {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 18px 16px 22px;
+  }
+  .field-date {
+    grid-column: span 12;
+  }
+  .field-utc,
+  .field-khz {
+    grid-column: span 6;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .drum .reel {
     transition: none;
   }
   .plate .head {
     display: none;
+  }
+}
+
+/* ---- on a printer ------------------------------------------------------ */
+
+/* Of the report desk, only the card is worth the paper. */
+@media print {
+  html:has(.has-card) {
+    background: #fff;
+  }
+  .has-card .panel {
+    padding: 0;
+  }
+  .has-card .nameplate,
+  .has-card .sheet,
+  .has-card .actions,
+  .has-card .notice {
+    display: none;
+  }
+  .has-card .answer {
+    margin: 0;
+  }
+  .has-card .card {
+    box-shadow: none;
+    break-inside: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }

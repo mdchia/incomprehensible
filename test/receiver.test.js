@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { expose, rowOf, darkness, shade, INK } from '../lib/paper.js';
+import { expose, rowOf, darkness, shade, ink, INK } from '../lib/paper.js';
 import { onAir } from '../lib/band.js';
 import { Synth } from '../site/worklet.js';
 import { record, wav } from '../bin/recorder.js';
@@ -51,6 +51,17 @@ test('paper: signal is darker than noise, and a strip of it can be printed', () 
   const darkest = row.indexOf(Math.max(...row));
   assert.ok(darkest === 59 || darkest === 60, String(darkest));
   assert.ok(darkness(row[darkest]) > 0.5 && /[=+*#%@]/.test(text[darkest]), text);
+});
+
+test('paper: the pen leaves the floor nearly white and a signal nearly black', () => {
+  assert.equal(ink(0), 0);
+  assert.equal(ink(1), 0); // the mean of the floor
+  assert.ok(ink(INK) > 200);
+  assert.equal(ink(INK * 10), 255);
+  for (let p = 0, last = 0; p < 100; p += 0.25) {
+    assert.ok(ink(p) >= last && Number.isInteger(ink(p)));
+    last = ink(p);
+  }
 });
 
 test('loudspeaker: a signal 700 Hz above the dial is a 700 Hz tone', () => {
